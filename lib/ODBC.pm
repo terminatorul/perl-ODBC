@@ -263,7 +263,7 @@ module ODBC
 		my Buf[uint16] $descBuff = @$buffers[0];
 		my Buf[uint16] $attrBuff = @$buffers[1];
 
-		$.validateSqlReturn(ODBC::SQL::DriversW($.handle, $whence, nativecast(CArray[uint16], $descBuff), $descBuff.elems - 1, $descLen, nativecast(CArray[uint16], $attrBuff), $attrBuff.elems, $attrLen));
+		$.validateSqlReturn(ODBC::SQL::DriversW($.handle, $whence, nativecast(CArray[uint16], $descBuff), $descBuff.elems, $descLen, nativecast(CArray[uint16], $attrBuff), $attrBuff.elems, $attrLen));
 
 		return $descBuff.decode('utf-16') => %( map { my @pair = $_.split('='); @pair[1] //= True; pair(|@pair) }, grep { $_ }, $attrBuff.decode('utf-16').split("\0") );
 	    }
@@ -272,7 +272,7 @@ module ODBC
 		my Buf $descBuff = @$buffers[0];
 		my Buf $attrBuff = @$buffers[1];
 
-		$.validateSqlReturn(ODBC::SQL::Drivers($.handle, $whence, nativecast(CArray[uint8], $descBuff), $descBuff.elems - 1, $descLen, nativecast(CArray[uint8], $attrBuff), $attrBuff.elems, $attrLen));
+		$.validateSqlReturn(ODBC::SQL::Drivers($.handle, $whence, nativecast(CArray[uint8], $descBuff), $descBuff.elems, $descLen, nativecast(CArray[uint8], $attrBuff), $attrBuff.elems, $attrLen));
 
 		return decodeNative($descBuff) => %( map { my @pair = $_.split('='); @pair[1] //= True; pair(|@pair) }, grep { $_ }, decodeNative($attrBuff).split("\0") );
 	    }
