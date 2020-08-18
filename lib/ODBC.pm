@@ -30,7 +30,8 @@ module ODBC
 
     my sub decodeNative(Buf $arr) returns Str
     {
-	return decodeNativeString(nativecast(CArray[uint8], $arr), $arr.elems);
+	return decodeNativeString(nativecast(CArray[uint8], $arr), $arr.elems) if ($*DISTRO.is-win);
+	return arr.decode();
     }
 
     sub GetDiagRecA(ODBC::SQL::HANDLE $handleType, Pointer $handle, UInt $recordNumber, Str $sqlState is rw, Int $nativeError is rw, Str $message is rw) returns Int
