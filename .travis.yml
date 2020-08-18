@@ -1,22 +1,22 @@
 dist: focal
-install:
-  - rmdir --ignore-fail-on-non-empty "$HOME/packages"
-  - if ! test -d "$HOME/packages"; then mkdir --parents "$HOME/packages"; cd "$HOME/packages"; apt download -y cl-sql cl-sql-mysql cl-sql-odbc cl-sql-postgresql cl-sql-uffi cl-uffi default-libmysqlclient-dev fonts-glyphicons-halflings freetds-common libgraph-perl libjs-angularjs libjs-bootstrap libpath-tiny-perl libsqliteodbc libtommath1 moarvm nqp odbc-postgresql perl6-tap-harness perl6-zef rakudo tdsodbc unixodbc; fi
-  - cd "$HOME/packages" && sudo dpkg --install *.deb
-cache:
-  directories:
-    - $HOME/packages
+# install:
+#   - rmdir --ignore-fail-on-non-empty "$HOME/packages"
+#   - if ! test -d "$HOME/packages"; then mkdir --parents "$HOME/packages"; cd "$HOME/packages"; apt download -y cl-sql cl-sql-mysql cl-sql-odbc cl-sql-postgresql cl-sql-uffi cl-uffi default-libmysqlclient-dev fonts-glyphicons-halflings freetds-common libgraph-perl libjs-angularjs libjs-bootstrap libpath-tiny-perl libsqliteodbc libtommath1 moarvm nqp odbc-postgresql perl6-tap-harness perl6-zef rakudo tdsodbc unixodbc; fi
+#   - cd "$HOME/packages" && sudo dpkg --install *.deb
+# cache:
+#   directories:
+#     - $HOME/packages
 
-# addons:
-#   apt:
-#     packages:
-#       - perl6-tap-harness
-#       - perl6-zef
-#       - rakudo
-#       - unixodbc
-#       - cl-sql-odbc
-#       - libsqliteodbc
-#       - odbc-postgresql
-#       - tdsodbc
+addons:
+  apt:
+    packages:
+      - perl6-tap-harness
+      - perl6-zef
+      - rakudo
+      - unixodbc
+      - cl-sql-odbc
+      - libsqliteodbc
+      - odbc-postgresql
+      - tdsodbc
 script:
   - prove6 -v
