@@ -1,3 +1,7 @@
+os:
+  - linux
+  - osx
+
 dist: focal
 # install:
 #   - rmdir --ignore-fail-on-non-empty "$HOME/packages"
@@ -18,5 +22,13 @@ addons:
       - libsqliteodbc
       - odbc-postgresql
       - tdsodbc
+  homebrew:
+    packages:
+      - openssl
+      - rakudo-star
+      - unixodbc
+      - mariadb-connector-odbc
+      - sqliteodbc
+      - psqlodbc
 script:
   - prove6 -v
