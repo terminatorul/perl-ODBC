@@ -6,8 +6,7 @@ addons:
       - unixodbc
       - cl-sql-odbc
       - libsqliteodbc
-      - odbc-mariadb
-      - odbc-postgreslq
+      - odbc-postgresql
       - tdsodbc
 language: perl6
 perl6:
