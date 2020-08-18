@@ -1,0 +1,17 @@
+dist: focal
+addons:
+  apt:
+    update: true
+    packages:
+      - unixodbc
+      - cl-sql-odbc
+      - libsqliteodbc
+      - odbc-mariadb
+      - odbc-postgreslq
+      - tdsodbc
+language: perl6
+perl6:
+  - latest
+script:
+  - odbcinst -q -d
+  - odbcinst -j
