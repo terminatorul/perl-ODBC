@@ -1,5 +1,6 @@
 dist: focal
 before_install:
+  - rmdir --ignore-fail-on-non-empty "$HOME/packages"
   - if ! test -d "$HOME/packages"; then mkdir -f "$HOME/packages"; cd "$HOME/packages"; apt download -y cl-sql cl-sql-mysql cl-sql-odbc cl-sql-postgresql cl-sql-uffi cl-uffi default-libmysqlclient-dev fonts-glyphicons-halflings freetds-common libgraph-perl libjs-angularjs libjs-bootstrap libpath-tiny-perl libsqliteodbc libtommath1 moarvm nqp odbc-postgresql perl6-tap-harness perl6-zef rakudo tdsodbc unixodbc; fi
   - cd "$HOME/packages" && sudo dpkg --install *.deb
 cache:
