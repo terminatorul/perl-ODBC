@@ -11,4 +11,4 @@ addons:
       - odbc-postgresql
       - tdsodbc
 script:
-  - prove6 --verbose
+  - prove6 -v
