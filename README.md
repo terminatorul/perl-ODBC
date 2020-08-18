@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/n558pyl787ymf3bd/branch/master?svg=true)](https://ci.appveyor.com/project/terminatorul/perl-odbc/branch/master)
+
 # perl-ODBC
 Perl 6 modules for ODBC databases
 
