@@ -3,13 +3,14 @@ addons:
   apt:
     update: true
     packages:
+      - perl6-tap-harness
+      - perl6-zef
+      - raku
       - unixodbc
       - cl-sql-odbc
       - libsqliteodbc
       - odbc-postgresql
       - tdsodbc
 language: perl6
-perl6:
-  - latest
 script:
   - prove6 --verbose
