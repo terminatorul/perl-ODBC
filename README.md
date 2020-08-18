@@ -1,5 +1,5 @@
-Windows: [![Build status](https://ci.appveyor.com/api/projects/status/n558pyl787ymf3bd/branch/master?svg=true)](https://ci.appveyor.com/project/terminatorul/perl-odbc/branch/master);
-Linux: [![Build status](https://travis-ci.org/terminatorul/perl-ODBC.svg?branch=master)](https://travis-ci.org/terminatorul/perl-ODBC)
+[![Build status](https://ci.appveyor.com/api/projects/status/n558pyl787ymf3bd/branch/master?svg=true)](https://ci.appveyor.com/project/terminatorul/perl-odbc/branch/master)
+[![Build status](https://travis-ci.org/terminatorul/perl-ODBC.svg?branch=master)](https://travis-ci.org/terminatorul/perl-ODBC)
 
 # perl-ODBC
 Perl 6 module for ODBC databases.
