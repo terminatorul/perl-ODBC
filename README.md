@@ -1,12 +1,15 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/n558pyl787ymf3bd/branch/master?svg=true)](https://ci.appveyor.com/project/terminatorul/perl-odbc/branch/master)
 
 # perl-ODBC
-Perl 6 modules for ODBC databases
+Perl 6 module for ODBC databases.
+
+## Installation
+Clone the repository and manually copy the module to Perl 6 modules directory, since there is no module distribution archive packaged or uploaded to the Perl6 ecosystem for this module.
 
 ## Notification messages
 `ODBC` module will send notifications for informational SQLState values (error class '01000') reported by the Driver Manager. These notifications are exception classes of the form `X::ODBC::SQLInfo[$sqlcode]`, that inherit from the standard `CX::Warn` class.
 
-The intended use is for the application to handle these notifications in a Perl 6 `CONTROL` phaser, that would maybe display the message to the console and the `.resume` the exception. With the current issues with Perl 6 implementation, the `CONTROL` phaser must also handle the standard `CX::Warn` exception in a similar fasion, for example:
+The intended use is for the application to handle these notifications in a Perl 6 `CONTROL` phaser, that would maybe display the message to the console and then `.resume` the exception. With the current issues with Perl 6 implementation, the `CONTROL` phaser must also handle the standard `CX::Warn` exception in a similar fasion, for example:
 
 ```perl6
 use X::ODBC;
@@ -72,6 +75,12 @@ Currently the module is using the ANSI functions by default, until auto-detectio
 
 However ANSI applications require extra conversions in the ODBC module, and even in the case of ANSI applications connected to ANSI drivers, a few conversions are still neede in the ODBC Driver Manager also.
 
+So in general the recommended use is to set:
+```perl6
+    $ODBC::unicode = True;
+```
+during startup.
+
 ## Reading ODBC version string
 ```perl6
 use ODBC;
@@ -87,6 +96,8 @@ say $con.version;
 ```perl6
 
 use ODBC;
+
 my ODBC::Environment $env .= new;
-say .key for @$env.drivers:
+say .key for $env.drivers:
 ```
+Drivers are provided as a list of pairs, with the registered driver name as the key, and a hash of possible driver attributes as the value.
