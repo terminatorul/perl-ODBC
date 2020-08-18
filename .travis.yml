@@ -1,13 +1,14 @@
 dist: focal
 addons:
   apt:
-    update: true
     packages:
+      - perl6-tap-harness
+      - perl6-zef
+      - rakudo
       - unixodbc
       - cl-sql-odbc
       - libsqliteodbc
       - odbc-postgresql
       - tdsodbc
-language: perl6
 script:
   - prove6 --verbose
