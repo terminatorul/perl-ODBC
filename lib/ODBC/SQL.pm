@@ -4,9 +4,13 @@ use NativeCall;
 module ODBC::SQL
 {
 
+    constant base-library-name = $*DISTRO.is-win ?? 'ODBC32' !! 'odbc';
+
     sub LIBNAME
     {
-	%*ENV{'SQLODBC_LIBRARY_NAME'} // $*DISTRO.is-win ?? 'ODBC32' !! 'odbc'
+	state Str $libname = %*ENV{'SQLODBC_LIBRARY_NAME'} // base-library-name;
+
+	$libname;
     }
 
     our Int enum CP

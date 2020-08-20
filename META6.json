@@ -1,0 +1,13 @@
+{
+    "perl":	    "6.d",
+    "name":	    "ODBC",
+    "version":	    "0.8.0",
+    "api":	    1,
+    "description":  "Open DataBase Conectivity",
+    "auth":	    "github:terminatorul",
+    "authors":	    [ "Timothy Madden" ],
+    "license":	    "Unlicense",
+    "provides":	    [ "ODBC", "X::ODBC", "ODBC::SQL" ],
+    "source-url":   "https://github.com/terminatorul/perl-ODBC",
+    "source-type":  "git"
+}

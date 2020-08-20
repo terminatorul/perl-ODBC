@@ -28,11 +28,17 @@ module ODBC
 	die "Unicode conversion error"
     }
 
-    my sub decodeNative(Buf $arr) returns Str
+    sub decodeNativeWin(Buf $arr) returns Str
     {
-	return decodeNativeString(nativecast(CArray[uint8], $arr), $arr.elems) if ($*DISTRO.is-win);
-	return $arr.decode();
+	decodeNativeString(nativecast(CArray[uint8], $arr), $arr.elems)
     }
+
+    sub decodeNativeUnix(Buf $arr) returns Str
+    {
+	$arr.decode
+    }
+
+    my constant &decodeNative = $*DISTRO.is-win ?? &decodeNativeWin !! &decodeNativeUnix;
 
     sub GetDiagRecA(ODBC::SQL::HANDLE $handleType, Pointer $handle, UInt $recordNumber, Str $sqlState is rw, Int $nativeError is rw, Str $message is rw) returns Int
     {
