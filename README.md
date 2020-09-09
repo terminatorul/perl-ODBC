@@ -2,7 +2,11 @@
 [![Build status](https://travis-ci.org/terminatorul/perl-ODBC.svg?branch=master)](https://travis-ci.org/terminatorul/perl-ODBC)
 
 # perl-ODBC
-Perl 6 module for ODBC databases.
+Perl 6 module for ODBC databases. Tested for Windows, Linux and MacOS.
+
+Only available functions are:
+ - list installed drivers and driver attributes
+ - show available ODBC version
 
 ## Installation
 Clone the repository and manually copy the module to Perl 6 modules directory, since there is no module distribution archive packaged or uploaded to the Perl6 ecosystem for this module.
@@ -10,7 +14,7 @@ Clone the repository and manually copy the module to Perl 6 modules directory, s
 ## Notification messages
 `ODBC` module will send notifications for informational SQLState values (error class '01000') reported by the Driver Manager. These notifications are exception classes of the form `X::ODBC::SQLInfo[$sqlcode]`, that inherit from the standard `CX::Warn` class.
 
-The intended use is for the application to handle these notifications in a Perl 6 `CONTROL` phaser, that would maybe display the message to the console and then `.resume` the exception. With the current issues with Perl 6 implementation, the `CONTROL` phaser must also handle the standard `CX::Warn` exception in a similar fasion, for example:
+The intended use is for the application to handle these notifications in a Perl 6 `CONTROL` phaser, that would maybe display the message to the console and then `.resume` the exception. With the current issues in Perl 6 language implementation, the `CONTROL` phaser must also handle the standard `CX::Warn` exception in a similar fasion, for example:
 
 ```perl6
 use X::ODBC;
