@@ -7,6 +7,8 @@ Perl 6 module for ODBC databases. Tested for Windows, Linux and MacOS.
 Only available functions are:
  - list installed drivers and driver attributes
  - show available ODBC version
+ 
+The module will select iodbc on MacOS, unixodbc on Linux and standard ODBC32 on Windows.
 
 ## Installation
 Clone the repository and manually copy the module to Perl 6 modules directory, since there is no module distribution archive packaged or uploaded to the Perl6 ecosystem for this module.
@@ -105,4 +107,4 @@ use ODBC;
 my ODBC::Environment $env .= new;
 say .key for $env.drivers:
 ```
-Drivers are provided as a list of pairs, with the registered driver name as the key, and a hash of possible driver attributes as the value.
+Drivers are provided as a hash of hashes, with the registered driver name as the first-level key, and possible driver attributes as the nested (second-level) key. A `driverList()` method is also available to provided the drivers and attributes in the order listed by the ODBC API.
