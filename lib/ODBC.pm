@@ -22,7 +22,7 @@ module ODBC
 	    $strlen = ODBC::SQL::MultiByteToWideChar(ODBC::SQL::CP_THREAD_ACP, ODBC::SQL::MB_PRECOMPOSED +| ODBC::SQL::MB_ERR_INVALID_CHARS,
 		    $arr, $elems, nativecast(CArray[uint16], $decoded), $decoded.elems);
 
-	    return $decoded.decode('utf-16')
+	    return $decoded.decode('utf16')
 	}
 
 	die "Unicode conversion error"
@@ -159,8 +159,8 @@ module ODBC
 		    $sqlStateBuf.reallocate($sqlStateBuf.elems - 1);
 		    $messageBuf.reallocate($messageBuf.elems - 1);
 
-		    $sqlState = $sqlStateBuf.decode('utf32');
-		    $message  = $messageBuf.decode('utf32');
+		    $sqlState = decodeWideNative($sqlStateBuf);
+		    $message  = decodeWideNative($messageBuf);
 		    $nativeError = $nativeCode;
 		}
 	    }

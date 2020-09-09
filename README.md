@@ -2,7 +2,7 @@
 [![Build status](https://travis-ci.org/terminatorul/perl-ODBC.svg?branch=master)](https://travis-ci.org/terminatorul/perl-ODBC)
 
 # perl-ODBC
-Perl 6 module for ODBC databases. Tested for Windows, Linux and MacOS.
+Perl 6 module for listing available ODBC database drivers. Tested for Windows, Linux and MacOS.
 
 Only available functions are:
  - list installed drivers and driver attributes
