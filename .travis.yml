@@ -61,7 +61,7 @@ install:
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'Debug		= 0'>>/tmp/build-odbcinst.ini; fi
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'CommLog		= 1'>>/tmp/build-odbcinst.ini; fi
 
-    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mkdir -p "/Library/ODBC/"; fi
-    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then if ! test -s "/Library/ODBC/odbcinst.ini"; then cp /tmp/build-odbcinst.ini "/Library/ODBC/odbcinst.ini"; fi; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then sudo mkdir -p "/Library/ODBC/"; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then if ! test -s "/Library/ODBC/odbcinst.ini"; then sudo cp /tmp/build-odbcinst.ini "/Library/ODBC/odbcinst.ini"; fi; fi
 script:
   - prove6 -v
