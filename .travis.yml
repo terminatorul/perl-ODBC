@@ -28,11 +28,17 @@ addons:
     packages:
       - openssl
       - rakudo-star
-      - unixodbc
       - mariadb-connector-odbc
       - sqliteodbc
       - psqlodbc
+
 install:
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo '[ODBC Drivers]'>>/tmp/build-odbcinst.ini; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'SQLite				= Installed'>>/tmp/build-odbcinst.ini; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'MariaDB ODBC 3.0 Driver		= Installed'>>/tmp/build-odbcinst.ini; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'PostgreSQL ANSI zß水🍌		= Installed'>>/tmp/build-odbcinst.ini; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'PostgreSQL Unicode		        = Installed'>>/tmp/build-odbcinst.ini; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo ''>>/tmp/build-odbcinst.ini; fi
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo '[SQLite]'>>/tmp/build-odbcinst.ini; fi
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'Description=SQLite ODBC Driver'>>/tmp/build-odbcinst.ini; fi
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'Driver=/usr/local/Cellar/sqliteodbc/0.9998/lib/libsqlite3odbc-0.9998.dylib'>>/tmp/build-odbcinst.ini; fi
@@ -40,10 +46,10 @@ install:
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'Threading=2'>>/tmp/build-odbcinst.ini; fi
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo ''>>/tmp/build-odbcinst.ini; fi
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo '[MariaDB ODBC 3.0 Driver]'>>/tmp/build-odbcinst.ini; fi
-    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'Description = MariaDB Connector/ODBC v.3.0'>>/tmp/build-odbcinst.ini; fi
-    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'Driver = /usr/local/Cellar/mariadb-connector-odbc/3.1.9/lib/mariadb/libmaodbc.dylib'>>/tmp/build-odbcinst.ini; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'Description          = MariaDB Connector/ODBC v.3.0'>>/tmp/build-odbcinst.ini; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'Driver               = /usr/local/Cellar/mariadb-connector-odbc/3.1.9/lib/mariadb/libmaodbc.dylib'>>/tmp/build-odbcinst.ini; fi
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo ''>>/tmp/build-odbcinst.ini; fi
-    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo '[PostgreSQL ANSI]'>>/tmp/build-odbcinst.ini; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo '[PostgreSQL ANSI zß水🍌]'>>/tmp/build-odbcinst.ini; fi
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'Description	= PostgreSQL ODBC driver (ANSI version)'>>/tmp/build-odbcinst.ini; fi
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'Driver		= /usr/local/Cellar/psqlodbc/12.02.0000/lib/psqlodbca.so'>>/tmp/build-odbcinst.ini; fi
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'Debug		= 0'>>/tmp/build-odbcinst.ini; fi
@@ -55,6 +61,7 @@ install:
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'Debug		= 0'>>/tmp/build-odbcinst.ini; fi
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo 'CommLog		= 1'>>/tmp/build-odbcinst.ini; fi
 
-    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then if ! test -s /usr/local/etc/odbcinst.ini; then cp /tmp/build-odbcinst.ini /usr/local/etc/odbcinst.ini; fi; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mkdir -p "/Library/ODBC/"; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then if ! test -s "/Library/ODBC/odbcinst.ini"; then cp /tmp/build-odbcinst.ini "/Library/ODBC/odbcinst.ini"; fi; fi
 script:
   - prove6 -v

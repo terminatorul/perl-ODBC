@@ -14,13 +14,13 @@ say "ODBC version: {$odbcVer}";
 
 ok(my @drivers = $env.drivers);
 .say for @drivers;
-ok([?&] (.value{'Driver'} // .value{'UsageCount'} for @drivers));
+ok([?&] (.value{'Driver'} // .value{'UsageCount'} // .value{'Installed'} for @drivers));
 
 $ODBC::unicode = True;
 ok(@drivers = $env.drivers);
 
 .say for @drivers;
-ok([?&] (.value{'Driver'} // .value{'UsageCount'} for @drivers));
+ok([?&] (.value{'Driver'} // .value{'UsageCount'} // .value{'Installed'} for @drivers));
 
 LEAVE
 {

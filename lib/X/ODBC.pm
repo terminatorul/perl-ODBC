@@ -67,6 +67,14 @@ module X::ODBC
 	}
     }
 
+    class EncodingError is CX::Warn
+    {
+	method new($message)
+	{
+	    return self.bless(:$message)
+	}
+    }
+
     # SQLRETURN codes
     constant InvalidHandle	 := SqlReturn[ODBC::SQL::INVALID_HANDLE];
     constant SqlError	    	 := SqlReturn[ODBC::SQL::ERROR];

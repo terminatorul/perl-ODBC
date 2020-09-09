@@ -4,7 +4,7 @@ use NativeCall;
 module ODBC::SQL
 {
 
-    constant base-library-name = $*DISTRO.is-win ?? 'ODBC32' !! 'odbc';
+    constant base-library-name = $*DISTRO.is-win ?? 'ODBC32' !! $*DISTRO.name ~~ /macosx?/ ?? 'iodbc' !! 'odbc';
 
     sub LIBNAME
     {
@@ -148,6 +148,14 @@ module ODBC::SQL
 
     constant SQL_ODBC_VER = 10;
 
+    constant SQLRETURN_   =  int16;
+    constant SQLHENV	  = Pointer;
+    constant SQLHDBC	  = Pointer;
+    constant SQLPOINTER	  = Pointer;
+    constant SQLWCHAR 	  = $*DISTRO.name ~~ /macosx?/ ?? uint32 !! uint16;
+    constant SQLUSMALLINT = uint16;
+    constant SQLSMALLINT  =  int16;
+
     our sub MultiByteToWideChar
 		(
 		    uint32 $codePage,
@@ -177,9 +185,9 @@ module ODBC::SQL
 		(
 		    int16	   $handleType, Pointer $handle,
 		    int16	   $recordNumber,
-		    CArray[uint16] $sqlState,
+		    CArray[uint32] $sqlState,
 		    int32	   $nativeError is rw,
-		    CArray[uint16] $message, int16 $messageMaxLen, int16 $messageLenPtr is rw
+		    CArray[uint32] $message, int16 $messageMaxLen, int16 $messageLenPtr is rw
 		)
 		    returns int16 is native(LIBNAME) is symbol('SQLGetDiagRecW')
     {
@@ -203,36 +211,36 @@ module ODBC::SQL
 
     our sub Drivers
 		(
-		    Pointer $hEnv,
-		    uint16  $whence,
-		    CArray[uint8] $driverDescription, int16 $descriptionMaxLen, int16 $descriptionLenPtr is rw,
-		    CArray[uint8] $driverAttributes,  int16 $attributesMaxLen,  int16 $attributesLenPtr  is rw
+		    SQLHENV       $hEnv,
+		    SQLUSMALLINT  $whence,
+		    CArray[uint8] $driverDescription, SQLSMALLINT $descriptionMaxLen, SQLSMALLINT $descriptionLenPtr is rw,
+		    CArray[uint8] $driverAttributes,  SQLSMALLINT $attributesMaxLen,  SQLSMALLINT $attributesLenPtr  is rw
 		)
-		    returns int16 is native(LIBNAME) is symbol('SQLDrivers')
+		    returns SQLRETURN_ is native(LIBNAME) is symbol('SQLDrivers')
     {
 	*
     }
 
     our sub DriversW
 		(
-		    Pointer $hEnv,
-		    uint16  $whence,
-		    CArray[uint16] $driverDescription, int16 $descriptionMaxLen, int16 $descriptionLenPtr is rw,
-		    CArray[uint16] $driverAttributes,  int16 $attributesMaxLen,  int16 $attributesLenPtr  is rw
+		    SQLHENV          $hEnv,
+		    SQLUSMALLINT     $whence,
+		    CArray[SQLWCHAR] $driverDescription, SQLSMALLINT $descriptionMaxLen, SQLSMALLINT $descriptionLenPtr is rw,
+		    CArray[SQLWCHAR] $driverAttributes,  SQLSMALLINT $attributesMaxLen,  SQLSMALLINT $attributesLenPtr  is rw
 		)
-		    returns int16 is native(LIBNAME) is symbol('SQLDriversW')
+		    returns SQLRETURN_ is native(LIBNAME) is symbol('SQLDriversW')
     {
 	*
     }
 
-    our sub GetInfo(Pointer $hConn, uint16 $infoType, Pointer $infoValuePtr, int16 $bufferLength, int16 $stringLength is rw)
-	returns int16 is native(LIBNAME) is symbol('SQLGetInfo')
+    our sub GetInfo(SQLHDBC $hConn, SQLUSMALLINT $infoType, SQLPOINTER $infoValuePtr, SQLSMALLINT $bufferLength, SQLSMALLINT $stringLength is rw)
+	returns SQLRETURN_ is native(LIBNAME) is symbol('SQLGetInfo')
     {
 	*
     }
 
-    our sub GetInfoW(Pointer $hConn, uint16 $infoType, Pointer $infoValuePtr, int16 $bufferLength, int16 $stringLength is rw)
-	returns int16 is native(LIBNAME) is symbol('SQLGetInfo')
+    our sub GetInfoW(SQLHDBC $hConn, SQLUSMALLINT $infoType, SQLPOINTER $infoValuePtr, SQLSMALLINT $bufferLength, SQLSMALLINT $stringLength is rw)
+	returns SQLRETURN_ is native(LIBNAME) is symbol('SQLGetInfoW')
     {
 	*
     }
