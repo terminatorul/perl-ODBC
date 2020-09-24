@@ -73,20 +73,22 @@ SQLInfo[$sqlstate]
             Exception
 ```
 
+## Selecting the required ODBC version
+The module will by default require ODBC version 3, which is not the lastes ODBC version from Microsoft 3.58. This is currently needed for MacOS X, and can be changed when the constructor for ODBC::Environment is called.
+
 ## Using ANSI/Unicode ODBC functions
 
 Currently the module is using the ANSI functions by default, until auto-detection based on the version string can be implemented. Unicode functions require ODBC v3.50 or later. You can select which API functions to be used by setting the `$ODBC::unicode` variable to a `True` value for Unicode functions and `False` value for ANSI functions. This may potentially have an effect on performance, since the optimum case is when ODBC Driver Manager is connecting:
-
     - Unicode applications with Unicode drivers
     - ANSI applications with ANSI drivers.
 
 However, for Windows:
- - ANSI functions require extra conversions in the ODBC module, based on WinAPI function `MultiByteToWideChar()`
- - in case of ANSI applications connected to ANSI drivers, a few conversions are still neede in the ODBC Driver Manager also.
+ - ANSI functions require extra conversions in the Perl module (compared to the Unicode functions), based on WinAPI function `MultiByteToWideChar()`
+ - in case of ANSI applications connected to ANSI drivers, a few conversions are still needed in the ODBC Driver Manager also.
  
 For MacOS X:
- - Unicode functions require extra conversions in the ODBC module, based on the C run-time library function `wctomb`.
- - Unicode functions will change the current locale for the C library to the user-defined locale `""`. This locale setting is global and will affect the entire process.
+ - Unicode functions require extra conversions in the Perl module, based on the C run-time library function `wctomb`.
+ - Unicode functions will change the current locale of the C library to the user-defined locale, named `""`. This locale setting is global and will affect the entire process.
 
 In general the recommended use is to set:
 ```perl6
@@ -113,4 +115,4 @@ use ODBC;
 my ODBC::Environment $env .= new;
 say .key for $env.drivers:
 ```
-Drivers are provided as a hash of hashes, with the registered driver name as the first-level key, and possible driver attributes as the nested (second-level) key. A `driverList()` method is also available to provided the drivers and attributes as a list of pairs holding lists, in the order enumerated by the ODBC API.
+Drivers are provided as a hash of hashes, with the registered driver name as the first-level key, and possible driver attributes as the nested (second-level) key. A `driverList()` method is also available, to provide the drivers and attributes as a list of pairs holding lists, in the same order enumerated by the ODBC API.
