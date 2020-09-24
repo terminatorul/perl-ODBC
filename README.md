@@ -8,7 +8,7 @@ Only available functions are:
  - list installed drivers and driver attributes
  - show available ODBC version
  
-The module will select iodbc on MacOS, unixodbc on Linux and standard ODBC32 on Windows.
+The module will load iodbc library on MacOS, unixodbc on Linux and ODBC32 dll on Windows.
 
 ## Installation
 Clone the repository and manually copy the module to Perl 6 modules directory, since there is no module distribution archive packaged or uploaded to the Perl6 ecosystem for this module.
@@ -50,7 +50,7 @@ $ODBC::notificationHandler = sub (X::ODBC::SQLNotification $notification)
 }
 ```
 
-Most `SQLInfo` and `SQLState` exceptions also have a descriptive name, for example `ColumnCountMismatch` is the same as `SQLState['07002']`, and `CursorExpected` is the same as `SQLState['07005']`.
+Most `SQLInfo` and `SQLState` exceptions also have a descriptive name, for example `SQLState['07002']` is `ColumnCountMismatch`, and `SQLState['07005']` is `CursorExpected`.
 
 There is another class for exceptions that are not related to SQL statements: `X::ODBC::SqlReturn[$code]`, for example: `SqlReturn[ODBC::SQL::INVALID_HANDLE]`, which also has the descriptive name `X::ODBC::InvalidHandle`.
 
@@ -80,9 +80,15 @@ Currently the module is using the ANSI functions by default, until auto-detectio
     - Unicode applications with Unicode drivers
     - ANSI applications with ANSI drivers.
 
-However ANSI applications require extra conversions in the ODBC module, and even in the case of ANSI applications connected to ANSI drivers, a few conversions are still neede in the ODBC Driver Manager also.
+However, for Windows:
+ - ANSI functions require extra conversions in the ODBC module, based on WinAPI function `MultiByteToWideChar()`
+ - in case of ANSI applications connected to ANSI drivers, a few conversions are still neede in the ODBC Driver Manager also.
+ 
+For MacOS X:
+ - Unicode functions require extra conversions in the ODBC module, based on the C run-time library function `wctomb`.
+ - Unicode functions will change the current locale for the C library to the user-defined locale `""`. This locale setting is global and will affect the entire process.
 
-So in general the recommended use is to set:
+In general the recommended use is to set:
 ```perl6
     $ODBC::unicode = True;
 ```
@@ -107,4 +113,4 @@ use ODBC;
 my ODBC::Environment $env .= new;
 say .key for $env.drivers:
 ```
-Drivers are provided as a hash of hashes, with the registered driver name as the first-level key, and possible driver attributes as the nested (second-level) key. A `driverList()` method is also available to provided the drivers and attributes in the order listed by the ODBC API.
+Drivers are provided as a hash of hashes, with the registered driver name as the first-level key, and possible driver attributes as the nested (second-level) key. A `driverList()` method is also available to provided the drivers and attributes as a list of pairs holding lists, in the order enumerated by the ODBC API.
