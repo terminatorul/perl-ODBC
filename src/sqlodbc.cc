@@ -7,6 +7,8 @@
 #include <exception>
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
+#include <execution>
 
 #include "odbc++/Environment.hh"
 #include "odbc++/Connection.hh"
@@ -15,9 +17,13 @@ using std::string;
 using namespace std::literals::string_literals;
 using std::exception;
 using std::getline;
+using std::setw;
+using std::left;
 using std::clog;
 using std::cin;
 using std::cout;
+using std::max_element;
+namespace execution = std::execution;
 
 namespace odbc = odbc3_0;
 using odbc::Environment;
@@ -34,7 +40,18 @@ try
     if (inputLine == ".drivers"s)
 	for (auto const &[description, attributes] : env.drivers())
 	{
-	    cout << description.data() << ": " << attributes.data() << '\n';
+	    cout << description.data() << ":\n";
+	    auto it = max_element(execution::par_unseq, attributes.begin(), attributes.end(), [](auto const &elem, auto const &other)
+		{
+		    return elem.first.size() < other.first.size();
+		});
+
+	    auto maxNameWidth = it == attributes.end() ? 0u : it->first.size();
+	    
+	    for (auto const &attribute : attributes)
+		cout << '\t' << setw(maxNameWidth) << left << attribute.first << " => " << attribute.second << '\n';
+
+	    cout << '\n';
 	}
     else
 	clog << "No such command: " << inputLine << '\n';
