@@ -23,12 +23,22 @@ using std::clog;
 using std::cin;
 using std::cout;
 using std::max_element;
+using std::find_if;
 namespace execution = std::execution;
 
 namespace odbc = odbc3_0;
 using odbc::Environment;
+using odbc::Connection;
 
-bool executeCommand(Environment &env, string const &inputLine)
+static string::const_iterator ScanFirstWord(std::string const &line)
+{
+    return find_if(execution::par_unseq, line.begin(), line.end(), [](char ch)
+	{
+	    return " \t\r\n\f\v"s.find(ch) != string::npos;
+	});
+}
+
+bool executeCommand(Environment &env, Connection &conn, string const &inputLine)
 try
 {
     if (inputLine.empty() || *inputLine.begin() == '#')
@@ -48,13 +58,35 @@ try
 
 	    auto maxNameWidth = it == attributes.end() ? 0u : it->first.size();
 	    
-	    for (auto const &attribute : attributes)
+	    for (auto const &attribute: attributes)
 		cout << '\t' << setw(maxNameWidth) << left << attribute.first << " => " << attribute.second << '\n';
 
 	    cout << '\n';
 	}
     else
-	clog << "No such command: " << inputLine << '\n';
+    {
+	auto it = ScanFirstWord(inputLine);
+
+	if (string(inputLine.begin(), it) == ".browseConnect")
+	{
+	    while (it != inputLine.end() && " \t\r\n\f\v"s.find(*it) != string::npos)
+		it++;
+
+	    if (it != inputLine.end())
+	    {
+		auto attributes = conn.browseConnect(Environment::splitAttributes(string(it, inputLine.end()), ';'));
+
+		for (auto const &attribute: attributes)
+		    cout << '\t' << attribute.first << '=' << attribute.second << '\n';
+
+		cout << '\n';
+	    }
+	    else
+		clog << "Missing connection string\n";
+	}
+	else
+	    clog << "No such command: " << inputLine << '\n';
+    }
 
     return true;
 }
@@ -88,6 +120,7 @@ int main(int argc, char const *argv[])
 try
 {
     Environment env;
+    Connection conn(env);
     string inputLine;
 
     while (cin.good())
@@ -97,7 +130,7 @@ try
 
 	trimWs(inputLine);
 
-	if (!executeCommand(env, inputLine))
+	if (!executeCommand(env, conn, inputLine))
 	    break;
     }
 

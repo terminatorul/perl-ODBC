@@ -1,9 +1,13 @@
+#if !defined(SQL_ODBCXX_HANDLE)
+#define SQL_ODBCXX_HANDLE
+
 #if defined(_WINDOWS) && defined(_M_AMD64) && !defined(_AMD64_)
 # define _AMD64_
 #endif
 
 #include <windef.h>
 
+#include <vector>
 #include <stdexcept>
 #include <utility>
 
@@ -21,6 +25,8 @@ namespace odbc3_0
 	SQLSMALLINT handleType;
 	SQLHANDLE sqlHandle = SQL_NULL_HANDLE;
 	Handle(SQLSMALLINT handleType, SQLHANDLE inputHandle);
+
+	using sqlstring = std::vector<SQLCHAR>;
 
     public:
 	Handle(Handle const &other) = delete;
@@ -78,3 +84,5 @@ inline odbc3_0::Handle::~Handle()
 	sqlHandle = SQL_NULL_HANDLE;
     }
 }
+
+#endif	    // !defined(SQL_ODBCXX_HANDLE)

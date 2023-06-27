@@ -60,13 +60,14 @@ void odbc3_0::Environment::FetchDriver(SQLUSMALLINT direction, pair<sqlstring, s
 static pair<string, map<string, string>> MakeDriverInfo(vector<SQLCHAR> &description, vector<SQLCHAR> &attributes)
 {
     string strDescription, attributeName, attributeValue;
-    map<string, string> attributesMap;
 
     strDescription.reserve(description.size());
     strDescription.assign(description.begin(), description.end());
 
     auto it = attributes.begin();
     auto jt = find(execution::par_unseq, it, attributes.end(), '\0');
+
+    map<string, string> attributesMap;
 
     while (jt != attributes.end())
     {
