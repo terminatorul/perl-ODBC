@@ -5,6 +5,7 @@
 #include "Handle.hh"
 #include "Environment.hh"
 
+#include <span>
 #include <map>
 #include <string>
 
@@ -12,14 +13,23 @@ namespace odbc3_0
 {
     class ODBCXX_EXPORT Connection: protected Handle
     {
-    protected:
+    public:
 	enum State
 	{
 	    Disconnected, InProgress, Connected
-	}
-	    state = State::Disconnected;
+	};
+    protected:
+	State state = State::Disconnected;
 
-	std::map<std::string, std::string> browseConnect(SQLCHAR *request, SQLSMALLINT requestSize);
+	enum class BrowseConnectResult
+	{
+	    Connected,
+	    Again,
+	    More
+	}
+	    nativeBrowseConnect(std::span<SQLCHAR> request, sqlstring &result);
+
+	std::map<std::string, std::string> browseConnect(std::span<SQLCHAR> request);
 
     public:
 	Connection(Environment &env);
@@ -33,7 +43,8 @@ namespace odbc3_0
 	Connection &operator =(Connection &&other) = default;
 
 	std::map<std::string, std::string> browseConnect(std::map<std::string, std::string> const &request);
-	void disconnect();
+	bool disconnect();
+	State connected() const noexcept;
     };
 }
 

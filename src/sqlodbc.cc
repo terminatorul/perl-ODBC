@@ -1,29 +1,40 @@
-#if defined(_WINDOWS) && defined(_M_AMD64) && !defined(_AMD64_)
-# define _AMD64_
+#if defined(_WINDOWS)
+# if defined(_M_AMD64) && !defined(_AMD64_)
+#   define _AMD64_
+# endif
+# if defined(_M_IX86) && !defined(_X68_)
+#  define _X86_
+# endif
 #endif
 
 #include <cstdlib>
 #include <string>
 #include <exception>
 #include <iostream>
-#include <iomanip>
 #include <algorithm>
 #include <execution>
+#include <map>
 
 #include "odbc++/Environment.hh"
 #include "odbc++/Connection.hh"
 
+#include "dbcmd/Context.hh"
+#include "dbcmd/CommandHandler.hh"
+
 using std::string;
+using std::string_view;
 using namespace std::literals::string_literals;
 using std::exception;
 using std::getline;
-using std::setw;
-using std::left;
+using std::istream;
+using std::ostream;
 using std::clog;
 using std::cin;
 using std::cout;
-using std::max_element;
+using std::cerr;
+using std::clog;
 using std::find_if;
+using std::map;
 namespace execution = std::execution;
 
 namespace odbc = odbc3_0;
@@ -38,61 +49,40 @@ static string::const_iterator ScanFirstWord(std::string const &line)
 	});
 }
 
-bool executeCommand(Environment &env, Connection &conn, string const &inputLine)
+static map<string, HandlerFunctor *> commandHandlers;
+
+bool executeCommand(Context &context, string const &inputLine)
 try
 {
     if (inputLine.empty() || *inputLine.begin() == '#')
 	return true;
 
-    if (inputLine == ".quit"s || inputLine == ".exit" || inputLine == ".close" || inputLine == "\x04"s)
+    if (inputLine == ".quit"s || inputLine == ".exit" || inputLine == ".close" || inputLine == "\x04"s /* Ctrl+D */)
 	return false;
-	
-    if (inputLine == ".drivers"s)
-	for (auto const &[description, attributes] : env.drivers())
-	{
-	    cout << description.data() << ":\n";
-	    auto it = max_element(execution::par_unseq, attributes.begin(), attributes.end(), [](auto const &elem, auto const &other)
-		{
-		    return elem.first.size() < other.first.size();
-		});
 
-	    auto maxNameWidth = it == attributes.end() ? 0u : it->first.size();
-	    
-	    for (auto const &attribute: attributes)
-		cout << '\t' << setw(maxNameWidth) << left << attribute.first << " => " << attribute.second << '\n';
-
-	    cout << '\n';
-	}
-    else
+    if (inputLine == ".disconnect"s || inputLine == ".dc"s)
     {
-	auto it = ScanFirstWord(inputLine);
+	if (!context.conn->disconnect())
+	    cout << "Not connected.\n";
 
-	if (string(inputLine.begin(), it) == ".browseConnect")
-	{
-	    while (it != inputLine.end() && " \t\r\n\f\v"s.find(*it) != string::npos)
-		it++;
+	cout << '\n';
 
-	    if (it != inputLine.end())
-	    {
-		auto attributes = conn.browseConnect(Environment::splitAttributes(string(it, inputLine.end()), ';'));
-
-		for (auto const &attribute: attributes)
-		    cout << '\t' << attribute.first << '=' << attribute.second << '\n';
-
-		cout << '\n';
-	    }
-	    else
-		clog << "Missing connection string\n";
-	}
-	else
-	    clog << "No such command: " << inputLine << '\n';
+	return true;
     }
+
+    auto it = ScanFirstWord(inputLine);
+    auto handlerIt = commandHandlers.find(string(inputLine.begin(), it));
+
+    if (handlerIt == commandHandlers.end())
+	clog << "No such command: " << inputLine << '\n';
+    else
+	(*handlerIt->second)(inputLine, it);
 
     return true;
 }
 catch (exception const &ex)
 {
-    clog << "Error: " << ex.what() << '\n';
+    clog << "Error: " << ex.what() << "\n\n";
 
     return true;
 }
@@ -116,26 +106,73 @@ void trimWs(string &inputLine)
 	inputLine.erase(jt.base(), inputLine.end());
 }
 
+static void loadHandlers(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog)
+{
+    CommandHandler *handler = CommandHandler::first;
+
+    while (handler)
+    {
+	for (auto const &commandName : handler->commandNames())
+	    commandHandlers.emplace(commandName, handler->mainFunctor(context, cin, cout, cerr, clog));
+
+	handler = handler->next;
+    }
+}
+
+string writePrompt(Context &context)
+{
+    if (context.connections.size() == 1u)
+    {
+	switch (context.conn->connected())
+	{
+	case context.conn->Connected:
+	    return "+"s;
+
+	case context.conn->InProgress:
+	    return "*"s;
+
+	default:
+	    return "-"s;
+	}
+    }
+
+    string prompt;
+
+    for (auto const &conn: context.connections)
+    {
+	if (&conn == context.conn)
+	    prompt.append(1u, '[');
+
+	prompt.append(1u, conn.connected() == conn.Connected ? '+' : conn.connected() == conn.InProgress ? '*' : '-');
+
+	if (&conn == context.conn)
+	    prompt.append(1u, '[');
+    }
+
+    return prompt;
+}
+
 int main(int argc, char const *argv[])
 try
 {
-    Environment env;
-    Connection conn(env);
+    Context context;
     string inputLine;
+
+    loadHandlers(context, cin, cout, cerr, clog);
 
     while (cin.good())
     {
-	cout << "ODBC:>";
+	cout << "ODBC:" << writePrompt(context) << '>';
 	getline(cin, inputLine);
 
 	trimWs(inputLine);
 
-	if (!executeCommand(env, conn, inputLine))
+	if (!executeCommand(context, inputLine))
 	    break;
     }
 
     if (cin.bad() || cin.fail() && !cin.eof())
-	    return EXIT_FAILURE;
+	return EXIT_FAILURE;
 
     return EXIT_SUCCESS;
 }

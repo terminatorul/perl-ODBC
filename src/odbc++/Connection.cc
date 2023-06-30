@@ -1,5 +1,10 @@
-#if defined(_WINDOWS) && defined(_M_AMD64) && !defined(_AMD64_)
-# define _AMD64_
+#if defined(_WINDOWS)
+# if defined(_M_AMD64) && !defined(_AMD64_)
+#   define _AMD64_
+# endif
+# if defined(_M_IX86) && !defined(_X68_)
+#  define _X86_
+# endif
 #endif
 
 #include <windef.h>
@@ -9,6 +14,7 @@
 #include <cstddef>
 #include <string>
 #include <map>
+#include <span>
 #include <numeric>
 #include <algorithm>
 #include <execution>
@@ -19,6 +25,7 @@
 
 using std::size_t;
 using std::map;
+using std::span;
 using std::string;
 using std::reduce;
 using std::transform;
@@ -28,7 +35,12 @@ using std::uncaught_exceptions;
 using namespace std::literals::string_literals;
 namespace execution = std::execution;
 
-void odbc3_0::Connection::disconnect()
+odbc3_0::Connection::State odbc3_0::Connection::connected() const noexcept
+{
+    return state;
+}
+
+bool odbc3_0::Connection::disconnect()
 {
     if (state != State::Disconnected)
     {
@@ -51,7 +63,11 @@ void odbc3_0::Connection::disconnect()
 	};
 
 	state = State::Disconnected;
+
+	return true;
     }
+
+    return false;
 }
 
 map<string, string> odbc3_0::Connection::browseConnect(map<string, string> const &request)
@@ -77,7 +93,7 @@ map<string, string> odbc3_0::Connection::browseConnect(map<string, string> const
 
 	string attributeName(requestAttribute.first.size(), '\0');
 	transform(execution::par_unseq, requestAttribute.first.begin(), requestAttribute.first.end(), attributeName.begin(), [](char ch) { return tolower(ch); });
-	
+
 	if (attributeName == "driver"s && (requestAttribute.second.empty() || *requestAttribute.second.begin() != '{'))
 	    requestString.push_back('{');
 
@@ -87,59 +103,74 @@ map<string, string> odbc3_0::Connection::browseConnect(map<string, string> const
 	    requestString.push_back('}');
     }
 
-    return browseConnect(requestString.data(), static_cast<SQLSMALLINT>(requestString.size()));
+    return browseConnect(span<SQLCHAR> { requestString.data(), requestString.size() });
 }
 
-map<string, string> odbc3_0::Connection::browseConnect(SQLCHAR *request, SQLSMALLINT requestSize)
+odbc3_0::Connection::BrowseConnectResult odbc3_0::Connection::nativeBrowseConnect(span<SQLCHAR> request, sqlstring &resultString)
 {
-    SQLSMALLINT resultStringSize;
+    SQLSMALLINT resultStringSize = 0;
 
-    switch (SQLBrowseConnect(sqlHandle, request, requestSize, nullptr, 0, &resultStringSize))
+    switch (SQLBrowseConnect(sqlHandle, request.data(), request.size(), resultString.data(), resultString.size(), &resultStringSize))
     {
     case SQL_SUCCESS:
     case SQL_SUCCESS_WITH_INFO:
+	return BrowseConnectResult::Connected;
+
     case SQL_NEED_DATA:
-    {
-	state = State::InProgress;
-	sqlstring resultString(resultStringSize + 1u);
-
-	switch (SQLBrowseConnect(sqlHandle, request, requestSize, resultString.data(), static_cast<SQLSMALLINT>(resultString.size()), &resultStringSize))
+	if (resultStringSize > resultString.size())
 	{
-	case SQL_SUCCESS:
-	case SQL_SUCCESS_WITH_INFO:
-	    state = State::Connected;
-	    // fall-through
-
-	case SQL_NEED_DATA:
-	{
-	    map<string, string> attributesMap;
-
-	    auto it = resultString.begin();
-	    auto jt = find(execution::par_unseq, it, resultString.end(), ';');
-
-	    while (jt != resultString.end())
-	    {
-		auto kt = find(execution::par_unseq, it, jt, '=');
-
-		if (kt != jt)
-		    attributesMap[string(it, kt)] = string(kt + 1, jt);
-		else
-		    attributesMap[string(it, jt)] = string();
-
-		it = ++jt;
-		jt = find(execution::par_unseq, it, resultString.end(), ';');
-	    }
-
-	    return attributesMap;
-	}
-	case SQL_ERROR:
-	default:
-	    throw runtime_error("SQL Error");
+	    resultString.resize(resultStringSize + 1u);
+	    return BrowseConnectResult::Again;
 	}
 
-	break;
-    }
+	resultString.resize(resultStringSize);
+
+	return BrowseConnectResult::More;
+
+    case SQL_ERROR:
     default:
 	throw runtime_error("SQL Error");
     }
+}
+
+map<string, string> odbc3_0::Connection::browseConnect(span<SQLCHAR> request)
+{
+    sqlstring resultString(1024u + 1u);
+
+    BrowseConnectResult result;
+    while ((result = nativeBrowseConnect(request, resultString)) == BrowseConnectResult::Again)
+	;
+
+    if (result == BrowseConnectResult::Connected)
+    {
+	state = State::Connected;
+	return map<string, string> { };
+    }
+
+    state = State::InProgress;
+
+    map<string, string> attributesMap;
+
+    auto it = resultString.begin();
+    auto jt = find(execution::par_unseq, it, resultString.end(), ';');
+
+    while (it != jt)
+    {
+	auto kt = find(execution::par_unseq, it, jt, '=');
+
+	if (kt != jt)
+	    attributesMap[string(it, kt)] = string(kt + 1, jt);
+	else
+	    attributesMap[string(it, jt)] = string();
+
+	if (jt != resultString.end())
+	{
+	    it = ++jt;
+	    jt = find(execution::par_unseq, it, resultString.end(), ';');
+	}
+	else
+	    it = jt;
+    }
+
+    return attributesMap;
 }

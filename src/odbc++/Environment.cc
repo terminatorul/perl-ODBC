@@ -1,5 +1,10 @@
-#if defined(_WINDOWS) && defined(_M_AMD64) && !defined(_AMD64_)
-# define _AMD64_
+#if defined(_WINDOWS)
+# if defined(_M_AMD64) && !defined(_AMD64_)
+#   define _AMD64_
+# endif
+# if defined(_M_IX86) && !defined(_X68_)
+#  define _X86_
+# endif
 #endif
 
 #include <windef.h>
@@ -31,7 +36,7 @@ namespace execution = std::execution;
 void odbc3_0::Environment::FetchDriver(SQLUSMALLINT direction, pair<sqlstring, sqlstring> &driverInfo)
 {
     SQLSMALLINT descLen = 0, attrLen = 0;
-    
+
     switch
 	(
 	    SQLDrivers

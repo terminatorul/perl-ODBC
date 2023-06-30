@@ -14,8 +14,8 @@ if(WIN32)
     target_link_libraries(odbc++ PUBLIC ODBC32)
 endif()
 
-set(SQLODBC_HEADERS)
-set(SQLODBC_SOURCES "src/sqlodbc.cc")
+set(SQLODBC_HEADERS "src/dbcmd/Context.hh" "src/dbcmd/CommandHandler.hh" "src/dbcmd/HandlerFunctor.hh" "src/dbcmd/browseConnect.hh" "src/dbcmd/Drivers.hh")
+set(SQLODBC_SOURCES "src/sqlodbc.cc" "src/dbcmd/CommandHandler.cc" "src/dbcmd/browseConnect.cc" "src/dbcmd/Drivers.cc") # "src/dbcmd/HandlerFunctor.cc"
 
 add_executable(sqlodbc ${SQLODBC_HEADERS} ${SQLODBC_SOURCES})
 target_link_libraries(sqlodbc odbc++)
