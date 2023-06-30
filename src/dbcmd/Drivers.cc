@@ -24,6 +24,7 @@ using std::cout;
 using std::setw;
 using std::left;
 using std::max_element;
+using namespace std::literals::string_literals;
 namespace execution = std::execution;
 
 using odbc3_0::Environment;
@@ -38,22 +39,43 @@ set<string> const &Drivers::commandNames() const
 
 void Drivers::Functor::operator ()(string const &command, string::const_iterator it)
 {
+    while (it != command.end() && " \t\r\n\f\v"s.find(*it) != string::npos)
+	it++;
+
+    string cmdArg { it, command.end() };
+    bool brief = false;
+
+    if (cmdArg == "--brief"s)
+	brief = true;
+    else
+	if (cmdArg.size())
+	{
+	    clog << "Option not supported: " << cmdArg << "\n\n";
+	    return;
+	}
+
     for (auto const &[description, attributes]: env.drivers())
     {
-	cout << description.data() << ":\n";
+	cout << description.data() << (brief ? "" : ":") << '\n';
 
-	auto it = max_element(execution::par_unseq, attributes.begin(), attributes.end(), [](auto const &elem, auto const &other)
-	    {
-		return elem.first.size() < other.first.size();
-	    });
+	if (!brief)
+	{
+	    auto it = max_element(execution::par_unseq, attributes.begin(), attributes.end(), [](auto const &elem, auto const &other)
+		{
+		    return elem.first.size() < other.first.size();
+		});
 
-	auto maxNameWidth = it == attributes.end() ? 0u : it->first.size();
+	    auto maxNameWidth = it == attributes.end() ? 0u : it->first.size();
 
-	for (auto const &attribute : attributes)
-	    cout << '\t' << setw(maxNameWidth) << left << attribute.first << " => " << attribute.second << '\n';
+	    for (auto const &attribute : attributes)
+		cout << '\t' << setw(maxNameWidth) << left << attribute.first << " => " << attribute.second << '\n';
 
-	cout << '\n';
+	    cout << '\n';
+	}
     }
+
+    if (brief)
+	cout << '\n';
 }
 
 static Drivers driversCmd;
