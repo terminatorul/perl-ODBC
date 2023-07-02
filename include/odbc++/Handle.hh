@@ -7,7 +7,9 @@
 
 #include <windef.h>
 
+#include <tuple>
 #include <vector>
+#include <string>
 #include <stdexcept>
 #include <utility>
 
@@ -17,7 +19,7 @@
 
 #include "odbc++/Exports.h"
 
-namespace odbc3_0
+namespace odbc
 {
     class ODBCXX_EXPORT Handle
     {
@@ -26,7 +28,11 @@ namespace odbc3_0
 	SQLHANDLE sqlHandle = SQL_NULL_HANDLE;
 	Handle(SQLSMALLINT handleType, SQLHANDLE inputHandle);
 
+	using string = std::string;
 	using sqlstring = std::vector<SQLCHAR>;
+
+	std::tuple<sqlstring, SQLINTEGER, sqlstring>
+	    diagnosticRecord(SQLSMALLINT recordNumber);
 
     public:
 	Handle(Handle const &other) = delete;
@@ -34,12 +40,15 @@ namespace odbc3_0
 	Handle(SQLSMALLINT handleType, Handle const &inputHandle);
 	~Handle();
 
+	std::vector<std::tuple<string, SQLINTEGER, string>>
+	    diagnosticRecords();
+
 	Handle &operator =(Handle const &other) = delete;
 	Handle &operator =(Handle &&other);
     };
 }
 
-inline odbc3_0::Handle::Handle(SQLSMALLINT handleType, SQLHANDLE inputHandle)
+inline odbc::Handle::Handle(SQLSMALLINT handleType, SQLHANDLE inputHandle)
     : handleType(handleType)
 {
     switch (SQLAllocHandle(handleType, inputHandle, &sqlHandle))
@@ -56,17 +65,17 @@ inline odbc3_0::Handle::Handle(SQLSMALLINT handleType, SQLHANDLE inputHandle)
     }
 }
 
-inline odbc3_0::Handle::Handle(SQLSMALLINT handleType, Handle const &inputHandle)
+inline odbc::Handle::Handle(SQLSMALLINT handleType, Handle const &inputHandle)
     : Handle(handleType, inputHandle.sqlHandle)
 {
 }
 
-inline odbc3_0::Handle::Handle(Handle &&other)
+inline odbc::Handle::Handle(Handle &&other)
     : handleType(other.handleType), sqlHandle(std::exchange(other.sqlHandle, SQLHANDLE { SQL_NULL_HANDLE }))
 {
 }
 
-inline odbc3_0::Handle &odbc3_0::Handle::operator =(Handle &&other)
+inline odbc::Handle &odbc::Handle::operator =(Handle &&other)
 {
     handleType = other.handleType;
     sqlHandle = other.sqlHandle;
@@ -76,7 +85,7 @@ inline odbc3_0::Handle &odbc3_0::Handle::operator =(Handle &&other)
     return *this;
 }
 
-inline odbc3_0::Handle::~Handle()
+inline odbc::Handle::~Handle()
 {
     if (sqlHandle != SQL_NULL_HANDLE)
     {

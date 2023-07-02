@@ -17,7 +17,7 @@
 #include "Exports.h"
 #include "Handle.hh"
 
-namespace odbc3_0
+namespace odbc
 {
     class ODBCXX_EXPORT Environment: protected Handle
     {
@@ -36,19 +36,19 @@ namespace odbc3_0
     };
 }
 
-inline odbc3_0::Environment::Environment(unsigned long ver)
+inline odbc::Environment::Environment(unsigned long ver)
     : Handle(SQL_HANDLE_ENV, SQL_NULL_HANDLE)
 {
     SQLSetEnvAttr(sqlHandle, SQL_ATTR_ODBC_VERSION, (void *)uintptr_t { ver }, -1);
 }
 
-inline SQLHENV odbc3_0::Environment::nativeHandle() const
+inline SQLHENV odbc::Environment::nativeHandle() const
 {
     return sqlHandle;
 }
 
 template<typename StringT, typename CharT>
-    inline std::map<std::string, std::string> odbc3_0::Environment::splitAttributes(StringT const &attributes, CharT separator)
+    inline std::map<std::string, std::string> odbc::Environment::splitAttributes(StringT const &attributes, CharT separator)
 {
     using std::string;
     auto it = attributes.begin();

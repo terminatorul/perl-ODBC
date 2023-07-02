@@ -11,10 +11,10 @@
 class Context
 {
 public:
-    odbc3_0::Environment env;
-    std::vector<odbc3_0::Connection> connections;
+    odbc::Environment env;
+    std::vector<odbc::Connection> connections;
     unsigned connectionIndex = 0u;
-    odbc3_0::Connection *conn = nullptr;
+    odbc::Connection *conn = nullptr;
 
     std::map<std::string, std::map<std::string, std::string>>
 	drivers;
@@ -22,10 +22,11 @@ public:
     void appendNewConnection();
     void deleteConnection(unsigned connectionIndex);
 
-    Context();
+    Context(unsigned long ver = SQL_OV_ODBC3_80);
 };
 
-inline Context::Context()
+inline Context::Context(unsigned long ver)
+    : env(ver)
 {
     appendNewConnection();
 }

@@ -21,6 +21,7 @@
 #include <exception>
 #include <stdexcept>
 
+#include "odbc++/SQLDiagnosticException.hh"
 #include "odbc++/Connection.hh"
 
 using std::size_t;
@@ -35,12 +36,12 @@ using std::uncaught_exceptions;
 using namespace std::literals::string_literals;
 namespace execution = std::execution;
 
-odbc3_0::Connection::State odbc3_0::Connection::connected() const noexcept
+odbc::Connection::State odbc::Connection::connected() const noexcept
 {
     return state;
 }
 
-bool odbc3_0::Connection::disconnect()
+bool odbc::Connection::disconnect()
 {
     if (state != State::Disconnected)
     {
@@ -58,7 +59,7 @@ bool odbc3_0::Connection::disconnect()
 	case SQL_ERROR:
 	default:
 	    if (!uncaught_exceptions())
-		throw runtime_error("SQL Error.");
+		throw SQLDiagnosticException(*this);
 	    break;
 	};
 
@@ -70,7 +71,7 @@ bool odbc3_0::Connection::disconnect()
     return false;
 }
 
-map<string, string> odbc3_0::Connection::browseConnect(map<string, string> const &request)
+map<string, string> odbc::Connection::browseConnect(map<string, string> const &request)
 {
     if (state == State::Connected)
 	throw runtime_error("Already connected.");
@@ -106,7 +107,7 @@ map<string, string> odbc3_0::Connection::browseConnect(map<string, string> const
     return browseConnect(span<SQLCHAR> { requestString.data(), requestString.size() });
 }
 
-odbc3_0::Connection::BrowseConnectResult odbc3_0::Connection::nativeBrowseConnect(span<SQLCHAR> request, sqlstring &resultString)
+odbc::Connection::BrowseConnectResult odbc::Connection::nativeBrowseConnect(span<SQLCHAR> request, sqlstring &resultString)
 {
     SQLSMALLINT resultStringSize = 0;
 
@@ -129,11 +130,11 @@ odbc3_0::Connection::BrowseConnectResult odbc3_0::Connection::nativeBrowseConnec
 
     case SQL_ERROR:
     default:
-	throw runtime_error("SQL Error");
+	throw SQLDiagnosticException(*this);
     }
 }
 
-map<string, string> odbc3_0::Connection::browseConnect(span<SQLCHAR> request)
+map<string, string> odbc::Connection::browseConnect(span<SQLCHAR> request)
 {
     sqlstring resultString(1024u + 1u);
 

@@ -17,10 +17,10 @@ public:
 
 protected:
     CommandHandler *handler;
-    odbc3_0::Environment &env;
-    std::vector<odbc3_0::Connection> &connections;
+    odbc::Environment &env;
+    std::vector<odbc::Connection> &connections;
     unsigned &connectionIndex;
-    odbc3_0::Connection *&conn;
+    odbc::Connection *&conn;
 
     istream &cin;
     ostream &cout, &cerr, &clog;

@@ -15,6 +15,7 @@
 #include <execution>
 #include <map>
 
+#include "odbc++/SQLDiagnosticException.hh"
 #include "odbc++/Environment.hh"
 #include "odbc++/Connection.hh"
 
@@ -35,9 +36,10 @@ using std::cerr;
 using std::clog;
 using std::find_if;
 using std::map;
+using namespace std::literals::string_literals;
 namespace execution = std::execution;
 
-namespace odbc = odbc3_0;
+using odbc::SQLDiagnosticException;
 using odbc::Environment;
 using odbc::Connection;
 
@@ -54,7 +56,7 @@ static map<string, HandlerFunctor *> commandHandlers;
 bool executeCommand(Context &context, string const &inputLine)
 try
 {
-    if (inputLine.empty() || *inputLine.begin() == '#')
+    if (inputLine.empty() || *inputLine.cbegin() == '#')
 	return true;
 
     if (inputLine == ".quit"s || inputLine == ".exit" || inputLine == ".close" || inputLine == "\x04"s /* Ctrl+D */)
@@ -74,9 +76,18 @@ try
     auto handlerIt = commandHandlers.find(string(inputLine.begin(), it));
 
     if (handlerIt == commandHandlers.end())
-	clog << "No such command: " << inputLine << '\n';
+	if (*inputLine.cbegin() == '!')
+	    return executeCommand(context, ".shell "s + string(++inputLine.cbegin(), inputLine.cend()));
+	else
+	    clog << "No such command: " << inputLine << '\n';
     else
 	(*handlerIt->second)(inputLine, it);
+
+    return true;
+}
+catch (SQLDiagnosticException const &ex)
+{
+    clog << ex.what() << "\n\n";
 
     return true;
 }

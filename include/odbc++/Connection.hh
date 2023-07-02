@@ -9,7 +9,7 @@
 #include <map>
 #include <string>
 
-namespace odbc3_0
+namespace odbc
 {
     class ODBCXX_EXPORT Connection: protected Handle
     {
@@ -48,17 +48,17 @@ namespace odbc3_0
     };
 }
 
-inline odbc3_0::Connection::Connection(Environment &env)
+inline odbc::Connection::Connection(Environment &env)
     : Handle(SQL_HANDLE_DBC, env)
 {
 }
 
-inline odbc3_0::Connection::~Connection()
+inline odbc::Connection::~Connection()
 {
     disconnect();
 }
 
-inline SQLHDBC odbc3_0::Connection::nativeHandle() const
+inline SQLHDBC odbc::Connection::nativeHandle() const
 {
     return sqlHandle;
 }

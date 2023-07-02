@@ -33,7 +33,7 @@ using std::move;
 
 namespace execution = std::execution;
 
-void odbc3_0::Environment::FetchDriver(SQLUSMALLINT direction, pair<sqlstring, sqlstring> &driverInfo)
+void odbc::Environment::FetchDriver(SQLUSMALLINT direction, pair<sqlstring, sqlstring> &driverInfo)
 {
     SQLSMALLINT descLen = 0, attrLen = 0;
 
@@ -90,7 +90,7 @@ static pair<string, map<string, string>> MakeDriverInfo(vector<SQLCHAR> &descrip
     return { move(strDescription), move(attributesMap) };
 }
 
-auto odbc3_0::Environment::drivers() -> map<string, map<string, string>>
+auto odbc::Environment::drivers() -> map<string, map<string, string>>
 {
     SQLSMALLINT descLen = 0, attrLen = 0;
     vector<pair<sqlstring, sqlstring>> driverList;

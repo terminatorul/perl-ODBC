@@ -33,8 +33,8 @@ using std::left;
 using namespace std::literals::string_literals;
 namespace execution = std::execution;
 
-using odbc3_0::Environment;
-using odbc3_0::Connection;
+using odbc::Environment;
+using odbc::Connection;
 
 set<string> const &BrowseConnect::commandNames() const
 {
