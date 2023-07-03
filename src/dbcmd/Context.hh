@@ -11,6 +11,8 @@
 class Context
 {
 public:
+    static bool isStdInInteractive();
+    bool interactive;
     odbc::Environment env;
     std::vector<odbc::Connection> connections;
     unsigned connectionIndex = 0u;
@@ -22,11 +24,11 @@ public:
     void appendNewConnection();
     void deleteConnection(unsigned connectionIndex);
 
-    Context(unsigned long ver = SQL_OV_ODBC3_80);
+    Context(bool isInteractive = isStdInInteractive(), unsigned long ver = SQL_OV_ODBC3_80);
 };
 
-inline Context::Context(unsigned long ver)
-    : env(ver)
+inline Context::Context(bool isInteractive, unsigned long ver)
+    : interactive(isInteractive), env(ver)
 {
     appendNewConnection();
 }

@@ -157,7 +157,7 @@ string writePrompt(Context &context)
 	prompt.append(1u, conn.connected() == conn.Connected ? '+' : conn.connected() == conn.InProgress ? '*' : '-');
 
 	if (&conn == context.conn)
-	    prompt.append(1u, '[');
+	    prompt.append(1u, ']');
     }
 
     return prompt;
@@ -173,7 +173,9 @@ try
 
     while (cin.good())
     {
-	cout << "ODBC:" << writePrompt(context) << '>';
+	if (context.interactive)
+	    cout << "ODBC:" << writePrompt(context) << '>';
+
 	getline(cin, inputLine);
 
 	trimWs(inputLine);

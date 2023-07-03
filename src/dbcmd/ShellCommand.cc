@@ -148,7 +148,7 @@ void ShellCommand::Functor::operator ()(string const &command, string::const_ite
 	it++;
 
     string shell;
-    string cmdArg{ it, command.end() };
+    string cmdArg { it, command.end() };
 
     bool nativeShell = false;
 

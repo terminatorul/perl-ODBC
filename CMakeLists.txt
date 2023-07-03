@@ -29,14 +29,17 @@ set(SQLODBC_HEADERS
     "src/dbcmd/HandlerFunctor.hh"
     "src/dbcmd/browseConnect.hh"
     "src/dbcmd/Drivers.hh"
-    "src/dbcmd/ShellCommand.hh")
+    "src/dbcmd/ShellCommand.hh"
+    "src/dbcmd/ChDirCommand.hh")
 
 set(SQLODBC_SOURCES
     "src/sqlodbc.cc"
+    "src/dbcmd/Context.cc"
     "src/dbcmd/CommandHandler.cc"
     "src/dbcmd/browseConnect.cc"
     "src/dbcmd/Drivers.cc"
-    "src/dbcmd/ShellCommand.cc") # "src/dbcmd/HandlerFunctor.cc"
+    "src/dbcmd/ShellCommand.cc"
+    "src/dbcmd/ChDirCommand.cc") # "src/dbcmd/HandlerFunctor.cc"
 
 add_executable(sqlodbc ${SQLODBC_HEADERS} ${SQLODBC_SOURCES})
 target_link_libraries(sqlodbc odbc++)
