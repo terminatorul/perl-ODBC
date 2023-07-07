@@ -18,6 +18,7 @@
 using std::system;
 using std::getenv;
 using std::string;
+using std::string_view;
 using std::set;
 using std::find;
 using std::runtime_error;
@@ -25,10 +26,40 @@ using namespace std::literals::string_literals;
 
 set<string> const &ShellCommand::commandNames() const
 {
-    static set<string> const names { ".shell", ".sh", ".bash", ".dash", ".zsh", ".cmd", ".powershell", ".powerShell", ".pwsh" };
+    static set<string> const names { ".shell", ".sh", ".bash", ".dash", ".zsh", ".fish", ".cmd", ".powershell", ".PowerShell", ".pwsh" };
 
     return names;
 }
+
+string const &ShellCommand::helpSubject() const
+{
+    static string subjectLine = "\t.shell					Run given command in a shell or start interactive shell session"s;
+
+    return subjectLine;
+}
+
+string const &ShellCommand::helpText() const
+{
+    static string textLines =
+	"\t!<Shell-Command args...>    Run given command in the shell\n"
+	"\t.shell <cmd args...>\n"
+	"\t!                           Run interactive shell\n"
+	"\t.shell\n"
+	"\n"
+	"Or select a named shell to run:\n"
+	"\t.cmd         [cmd args...]\n"
+	"\t.pwsh        [cmd args...]\n"
+	"\t.powershell  [cmd args...]\n"
+	"\t.PowerShell  [cmd args...]\n"
+	"\t.bash        [cmd args...]\n"
+	"\t.dash        [cmd args...]\n"
+	"\t.sh          [cmd args...]\n"
+	"\t.fish        [cmd args...]\n"
+	"\t.zsh         [cmd args...]\n"s;
+
+	return textLines;
+}
+
 
 enum class ShellType { Native, Cmd, Shell, PowerShell };
 
@@ -125,13 +156,13 @@ static ShellType selectShellCommand(string &shellCmd, string &shell, bool &nativ
 	    shellType = ShellType::Shell;
 	}
 	else
-	    if (shellCmd == ".powershell"s || shellCmd == ".powerShell"s || shellCmd == ".pwsh"s)
+	    if (shellCmd == ".powershell"s || shellCmd == ".PowerShell"s || shellCmd == ".pwsh"s)
 	    {
 		shell = "PowerShell -ExecutionPolicy Unrestricted";
 		shellType = ShellType::PowerShell;
 	    }
 	    else
-		if (shellCmd == ".bash"s || shellCmd == ".dash" || shellCmd == ".zsh"s)
+		if (shellCmd == ".bash"s || shellCmd == ".dash" || shellCmd == ".zsh"s || shellCmd == ".fish"s)
 		{
 		    shell = string(++shellCmd.cbegin(), shellCmd.cend());
 		    shellType = ShellType::Shell;
@@ -142,7 +173,7 @@ static ShellType selectShellCommand(string &shellCmd, string &shell, bool &nativ
 
 void ShellCommand::Functor::operator ()(string const &command, string::const_iterator it)
 {
-    string shellCmd(command.begin(), it);
+    string shellCmd { command.begin(), it };
 
     while (it != command.end() && " \t\r\n\f\v"s.find(*it) != string::npos)
 	it++;

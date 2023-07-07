@@ -37,6 +37,21 @@ set<string> const &Drivers::commandNames() const
     return names;
 }
 
+string const &Drivers::helpSubject() const
+{
+    static string subjectLine = "\t.drivers [--brief]			List available ODBC drivers";
+
+    return subjectLine;
+}
+string const &Drivers::helpText() const
+{
+    static string textLines =
+	"\t.drivers			List available ODBC drivers with their attributes, one per line\n"
+	"\t.drivers --brief		List available ODBC drivers names (only)\n"s;
+
+    return textLines;
+}
+
 void Drivers::Functor::operator ()(string const &command, string::const_iterator it)
 {
     while (it != command.end() && " \t\r\n\f\v"s.find(*it) != string::npos)

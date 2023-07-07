@@ -16,6 +16,7 @@
 
 using std::set;
 using std::string;
+using std::string_view;
 using std::runtime_error;
 namespace filesystem = std::filesystem;
 using namespace std::literals::string_literals;
@@ -27,14 +28,32 @@ set<string> const &ChDirCommand::commandNames() const
     return names;
 }
 
+string const &ChDirCommand::helpSubject() const
+{
+    static string subjectLine = "\t.chdir					Display or change current directory."s;
+
+    return subjectLine;
+}
+
+string const &ChDirCommand::helpText() const
+{
+    static string textLines =
+	"\t.chdir <directory_name>         Change current directory.\n"
+	"\t.cd    <directory_name>\n"
+	"\t.cwd                            Display current directory\n"
+	"\t.pwd\n"s;
+
+    return textLines;
+}
+
 void ChDirCommand::Functor::operator ()(string const &command, string::const_iterator it)
 {
-    string cmd { command.cbegin(), it };
+    string_view cmd { command.cbegin(), it };
 
     while (it != command.end() && " \t\r\n\f\v"s.find(*it) != string::npos)
 	it++;
 
-    string dirname { it, command.end() };
+    string_view dirname { it, command.end() };
 
     if (cmd == ".cd"s || cmd == ".chdir"s)
 	if (dirname.empty())

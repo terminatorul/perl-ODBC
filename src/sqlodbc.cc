@@ -79,7 +79,7 @@ try
 	if (*inputLine.cbegin() == '!')
 	    return executeCommand(context, ".shell "s + string(++inputLine.cbegin(), inputLine.cend()));
 	else
-	    clog << "No such command: " << inputLine << '\n';
+	    clog << "No such command: " << inputLine << "\n\n";
     else
 	(*handlerIt->second)(inputLine, it);
 

@@ -36,6 +36,8 @@ public:
     using ostream = std::ostream;
 
     virtual set<string> const &commandNames() const = 0;
+    virtual string const &helpSubject() const = 0;
+    virtual string const &helpText() const = 0;
     virtual unique_ptr<HandlerFunctor> handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog) = 0;
     virtual HandlerFunctor *mainFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog);
 };

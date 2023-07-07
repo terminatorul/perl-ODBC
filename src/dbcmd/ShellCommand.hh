@@ -15,6 +15,8 @@ protected:
     };
 
     virtual set<string> const &commandNames() const override;
+    virtual string const &helpSubject() const override;
+    virtual string const &helpText() const override;
     virtual unique_ptr<HandlerFunctor> handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog) override;
 };
 

@@ -43,6 +43,28 @@ set<string> const &BrowseConnect::commandNames() const
     return names;
 }
 
+string const &BrowseConnect::helpSubject() const
+{
+    static string subjectLine = "\t.browseConnect <attribute>=<value>;...  Query ODBC driver for the connection attributes"s;
+
+    return subjectLine;
+}
+
+string const &BrowseConnect::helpText() const
+{
+    static string textLines =
+	"\t.browseConnect <attribute>=<value>;...   Query ODBC driver for the connection attributes\n"
+	"\n"
+	"Start with the DRIVER or DSN attribute, then provide values for the parameters displayed by .browseConnect by running\n"
+	"the command again, with the new parameters. The selected driver must support the needed connect function.This is\n"
+	"given in the driver ConnectFunctions attribute on character position 3. An asterisk * displayed in front of an \n"
+	"attribute name means the attribute is optional. After providing all the needed attributes using repeated calls to\n"
+	".browseConnect, the command will establish a new connection to the data source described by the accumulated attribute\n"
+	"values.\n"s;
+
+    return textLines;
+}
+
 static tuple<string, string, string> parseConnectionAttribute(pair<string, string> const &attribute)
 {
     auto it = find(execution::par_unseq, attribute.first.begin(), attribute.first.end(), ':');
