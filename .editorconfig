@@ -1,6 +1,6 @@
 root = true
 
-[*.{c,C,cc,cxx,cpp,h,H,hh,hxx,hpp}]
+[CMakeLists.txt,*.{c,C,cc,cxx,cpp,h,H,hh,hxx,hpp,cmake}]
 indent_size = 4
 tab_width = 8
 indent_style = tab
