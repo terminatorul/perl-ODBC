@@ -121,7 +121,8 @@ static void removeEnvVar(string const &varName)
 {
 #if defined(_WINDOWS)
     string envLine = varName + "="s;
-    _putenv(envLine.c_str());
+    if (_putenv(envLine.c_str()) < 0)
+	throw runtime_error("Error setting environment variable"s);
 //     if (BOOL fVarUpdated = SetEnvironmentVariable(varName.c_str(), NULL); !fVarUpdated)
 // 	throw runtime_error("Environment variable update failed with WinAPI error "s + std::to_string(::GetLastError()));
 #else
@@ -133,7 +134,8 @@ static void setEnvVar(string const &varName, string const &newValue)
 {
     string envLine = varName + "="s + newValue;
 #if defined(_WINDOWS)
-    _putenv(envLine.c_str());
+    if (_putenv(envLine.c_str()) < 0)
+	throw runtime_error("Error setting environment variable"s);
 //     if (BOOL fVarUpdated = SetEnvironmentVariable(varName.c_str(), newValue.c_str()); !fVarUpdated)
 // 	throw runtime_error("Environment variable update failed with WinAPI error "s + std::to_string(::GetLastError()));
 #else

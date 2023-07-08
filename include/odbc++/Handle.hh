@@ -17,7 +17,7 @@
 #include <sqlext.h>
 #include <sqlucode.h>
 
-#include "odbc++/Exports.h"
+#include "Exports.h"
 
 namespace odbc
 {
@@ -36,7 +36,7 @@ namespace odbc
 
     public:
 	Handle(Handle const &other) = delete;
-	Handle(Handle &&other);
+	Handle(Handle &&other) noexcept;
 	Handle(SQLSMALLINT handleType, Handle const &inputHandle);
 	~Handle();
 
@@ -70,7 +70,7 @@ inline odbc::Handle::Handle(SQLSMALLINT handleType, Handle const &inputHandle)
 {
 }
 
-inline odbc::Handle::Handle(Handle &&other)
+inline odbc::Handle::Handle(Handle &&other) noexcept
     : handleType(other.handleType), sqlHandle(std::exchange(other.sqlHandle, SQLHANDLE { SQL_NULL_HANDLE }))
 {
 }

@@ -3,13 +3,14 @@
 #include <string>
 #include <stdexcept>
 
+#include "Exports.h"
 #include "Handle.hh"
 
 namespace odbc
 {
-    class Handle;
+    class ODBCXX_EXPORT Handle;
 
-    class SQLDiagnosticException: public std::runtime_error
+    class ODBCXX_EXPORT SQLDiagnosticException: public std::runtime_error
     {
     protected:
 	std::vector<std::tuple<std::string, SQLINTEGER, std::string>>
@@ -24,7 +25,7 @@ namespace odbc
 	SQLINTEGER nativeError(unsigned recordNumber) const;
 	std::string const &message(unsigned recordNumber) const;
 
-	SQLDiagnosticException(std::vector<std::tuple<std::string, SQLINTEGER, std::string>> &&recods);
+	// SQLDiagnosticException(std::vector<std::tuple<std::string, SQLINTEGER, std::string>> &&recods);
 	SQLDiagnosticException(std::vector<std::tuple<std::string, SQLINTEGER, std::string>> const &recods);
 	SQLDiagnosticException(Handle &sqlHandle);
 
@@ -37,43 +38,43 @@ inline odbc::SQLDiagnosticException::SQLDiagnosticException(std::vector<std::tup
 {
 }
 
-inline odbc::SQLDiagnosticException::SQLDiagnosticException(std::vector<std::tuple<std::string, SQLINTEGER, std::string>> &&recods)
-    : runtime_error(std::string()), records(std::move(records))
-{
-}
+// inline odbc::SQLDiagnosticException::SQLDiagnosticException(std::vector<std::tuple<std::string, SQLINTEGER, std::string>> &&recods)
+//     : runtime_error(std::string()), records(std::move(records))
+// {
+// }
 
 inline odbc::SQLDiagnosticException::SQLDiagnosticException(Handle &sqlHandle)
     : runtime_error(std::string()), records(sqlHandle.diagnosticRecords())
 {
 }
 
-SQLINTEGER odbc::SQLDiagnosticException::recordCount()
+inline SQLINTEGER odbc::SQLDiagnosticException::recordCount()
 {
     return records.size();
 }
 
-std::tuple<std::string, SQLINTEGER, std::string> const
+inline std::tuple<std::string, SQLINTEGER, std::string> const
     &odbc::SQLDiagnosticException::record(unsigned recordNumber) const
 {
     return records[recordNumber];
 }
 
-std::string const &odbc::SQLDiagnosticException::sqlState(unsigned recordNumber) const
+inline std::string const &odbc::SQLDiagnosticException::sqlState(unsigned recordNumber) const
 {
     return std::get<0>(records[recordNumber]);
 }
 
-SQLINTEGER odbc::SQLDiagnosticException::nativeError(unsigned recordNumber) const
+inline SQLINTEGER odbc::SQLDiagnosticException::nativeError(unsigned recordNumber) const
 {
     return std::get<1>(records[recordNumber]);
 }
 
-std::string const &odbc::SQLDiagnosticException::message(unsigned recordNumber) const
+inline std::string const &odbc::SQLDiagnosticException::message(unsigned recordNumber) const
 {
     return std::get<2>(records[recordNumber]);
 }
 
-char const *odbc::SQLDiagnosticException::what() const
+inline char const *odbc::SQLDiagnosticException::what() const
 {
     if (recordListMessage.empty())
     {

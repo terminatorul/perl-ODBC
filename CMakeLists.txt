@@ -35,7 +35,8 @@ set(SQLODBC_HEADERS
     "src/dbcmd/ChDirCommand.hh"
     "src/dbcmd/EnvCommand.hh"
     "src/dbcmd/EchoCommand.hh"
-    "src/dbcmd/HelpCommand.hh")
+    "src/dbcmd/HelpCommand.hh"
+    "src/dbcmd/DiagnosticRecord.hh")
 
 set(SQLODBC_SOURCES
     "src/sqlodbc.cc"
@@ -47,7 +48,8 @@ set(SQLODBC_SOURCES
     "src/dbcmd/ChDirCommand.cc"
     "src/dbcmd/EnvCommand.cc"
     "src/dbcmd/EchoCommand.cc"
-    "src/dbcmd/HelpCommand.cc")
+    "src/dbcmd/HelpCommand.cc"
+    "src/dbcmd/DiagnosticRecord.cc")
 
 add_executable(sqlodbc ${SQLODBC_HEADERS} ${SQLODBC_SOURCES})
 target_link_libraries(sqlodbc odbc++)

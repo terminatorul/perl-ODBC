@@ -31,6 +31,9 @@ namespace odbc
 
 	SQLHENV nativeHandle() const;
 
+	using Handle::diagnosticRecord;
+	using Handle::diagnosticRecords;
+
 	template <typename StringT, typename CharT>
 	    static std::map<std::string, std::string> splitAttributes(StringT const &inputLine, CharT separator = ';');
     };

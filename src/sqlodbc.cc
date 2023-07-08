@@ -15,6 +15,7 @@
 #include <execution>
 #include <map>
 
+#include "odbc++/WindowsCategory.hh"
 #include "odbc++/SQLDiagnosticException.hh"
 #include "odbc++/Environment.hh"
 #include "odbc++/Connection.hh"
@@ -24,7 +25,6 @@
 
 using std::string;
 using std::string_view;
-using namespace std::literals::string_literals;
 using std::exception;
 using std::getline;
 using std::istream;

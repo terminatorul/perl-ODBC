@@ -38,6 +38,8 @@ namespace odbc
 	~Connection();
 
 	SQLHDBC nativeHandle() const;
+	using Handle::diagnosticRecord;
+	using Handle::diagnosticRecords;
 
 	Connection &operator =(Connection const &other) = delete;
 	Connection &operator =(Connection &&other) = default;
