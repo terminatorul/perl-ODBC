@@ -9,13 +9,15 @@ set(ODBCXX_HEADERS
     "include/odbc++/Handle.hh"
     "include/odbc++/Environment.hh"
     "include/odbc++/Connection.hh"
-    "include/odbc++/WindowsCategory.hh")
+    "include/odbc++/WindowsCategory.hh"
+    "include/odbc++/FileStreamBuffer.hh")
 
 set(ODBCXX_SOURCES
     "src/odbc++/Handle.cc"
     "src/odbc++/Environment.cc"
     "src/odbc++/Connection.cc"
-    "src/odbc++/WindowsCategory.cc")
+    "src/odbc++/WindowsCategory.cc"
+    "src/odbc++/FileStreamBuffer.cc")
 
 add_library(odbc++ SHARED ${ODBCXX_HEADERS} ${ODBCXX_SOURCES})
 target_include_directories(odbc++ PUBLIC "include")
