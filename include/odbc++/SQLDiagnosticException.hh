@@ -1,3 +1,6 @@
+#if !defined(SQL_ODBCXX_DIAGNOSTIC_EXCEPTION_HH)
+#define SQL_ODBCXX_DIAGNOSTIC_EXCEPTION_HH
+
 #include <utility>
 #include <tuple>
 #include <string>
@@ -86,3 +89,5 @@ inline char const *odbc::SQLDiagnosticException::what() const
 
     return recordListMessage.c_str();
 }
+
+#endif	    // !defined(SQL_ODBCXX_DIAGNOSTIC_EXCEPTION_HH)

@@ -1,3 +1,6 @@
+#if !defined(SQL_ODBCXX_WINDOWS_CATEGORY_HH)
+#define SQL_ODBCXX_WINDOWS_CATEGORY_HH
+
 #include <windef.h>
 #include <errhandlingapi.h>
 #include <winerror.h>
@@ -234,3 +237,5 @@ inline std::error_code odbc::windows_error_code(DWORD dwLastError)
 {
     return make_error_code(windows_error(dwLastError));
 }
+
+#endif	    // !defined(SQL_ODBCXX_WINDOWS_CATEGORY_HH)

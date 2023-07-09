@@ -7,16 +7,24 @@
 # endif
 #endif
 
+#include <iterator>
 #include <vector>
 #include <tuple>
 #include <stdexcept>
 
 #include "odbc++/Handle.hh"
 
+using std::begin;
+using std::end;
 using std::runtime_error;
 using std::tuple;
 using std::get;
 using std::vector;
+using namespace std::literals::string_literals;
+
+static char const
+    invalidHandleMessage[] = "(Unable to read message from SQL diagnostic area from ODBC: SQL_INVALID_HANDLE)",
+    sqlErrorMessage[]	   = "(Unable to read message from SQL diagnostic area from ODBC: SQL_ERROR)";
 
 std::tuple<odbc::Handle::sqlstring, SQLINTEGER, odbc::Handle::sqlstring>
     odbc::Handle::diagnosticRecord(SQLSMALLINT recordNumber)
@@ -32,7 +40,7 @@ std::tuple<odbc::Handle::sqlstring, SQLINTEGER, odbc::Handle::sqlstring>
 	if (!messageSize)
 	{
 	    sqlState.resize(5u);
-	    return tuple{ sqlState, nativeError, sqlstring() };
+	    return tuple { sqlState, nativeError, sqlstring { } };
 	}
 	// fall-through
 
@@ -51,22 +59,22 @@ std::tuple<odbc::Handle::sqlstring, SQLINTEGER, odbc::Handle::sqlstring>
 	    return tuple { sqlstring { }, 0, sqlstring { } };
 
 	case SQL_INVALID_HANDLE:
-	    throw runtime_error("Invalid handle");
+	    return tuple { sqlstring { }, 0, sqlstring { begin(invalidHandleMessage), end(invalidHandleMessage) - 1u } };
 
 	case SQL_ERROR:
 	default:
-	    throw runtime_error("SQL Error");
+	    return tuple { sqlstring { }, 0, sqlstring { begin(sqlErrorMessage), end(sqlErrorMessage) - 1u } };
 	}
 
     case SQL_NO_DATA:
 	return tuple { sqlstring { }, 0, sqlstring { } };
 
     case SQL_INVALID_HANDLE:
-	throw runtime_error("Invalid handle");
+	return tuple { sqlstring { }, 0, sqlstring { begin(invalidHandleMessage), end(invalidHandleMessage) - 1u } };
 
     case SQL_ERROR:
     default:
-	throw runtime_error("SQL Error");
+	return tuple { sqlstring { }, 0, sqlstring { begin(sqlErrorMessage), end(sqlErrorMessage) - 1u } };
     }
 }
 
