@@ -17,10 +17,10 @@ addons:
   apt:
     packages:
       - perl6-tap-harness
-      - perl6-zef
+        #      - perl6-zef
       - rakudo
       - unixodbc
-      - cl-sql-odbc
+        #- cl-sql-odbc
       - libsqliteodbc
       - odbc-postgresql
       - tdsodbc

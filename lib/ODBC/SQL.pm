@@ -147,6 +147,51 @@ module ODBC::SQL
     );
 
     constant SQL_ODBC_VER = 10;
+    constant SQL_MAX_MESSAGE_LENGTH = 512;
+
+    our Int enum BOOL
+    (
+	FALSE	    => 0,
+	TRUE	    => 1
+    );
+
+    our sub LoadLibraryA(Str $lpLibFileName is encoded('ascii')) returns Pointer is native('KERNEL32')
+    {
+	*
+    }
+
+    our sub FreeLibrary(Pointer $libModule) returns int32 is native('KERNEL32')
+    {
+	*
+    }
+
+    our Int enum RTLD
+    (
+	RTLD_LAZY   => 1,
+	RTLD_NOW    => 2,
+	RTLD_LOCAL  => 4,
+	RTLD_GLOBAL => 8
+    );
+
+    our sub GetProcAddress(Pointer $hModule, Str $lpProcName is encoded('ascii')) returns Pointer is native('KERNEL32')
+    {
+	*
+    }
+
+    our sub dlopen(Str $file, int32 $mode) returns Pointer is native
+    {
+	*
+    }
+
+    our sub dlsym(Pointer $handle, Str $name) returns Pointer is native
+    {
+	*
+    }
+
+    our sub dlclose(Pointer $handle) returns int32 is native
+    {
+	*
+    }
 
     our sub MultiByteToWideChar
 		(
@@ -160,81 +205,105 @@ module ODBC::SQL
 	*
     }
 
-    our sub GetDiagRec
-		(
-		    int16	   $handleType, Pointer $handle,
-		    int16	   $recordNumber,
-		    CArray[uint8]  $sqlState,
-		    int32	   $nativeError is rw,
-		    CArray[uint8]  $message, int16 $messageMaxLen, int16 $messageLenPtr is rw
-		)
-		    returns int16 is native(LIBNAME) is symbol('SQLGetDiagRec')
-    {
-	*
-    }
+    constant @sql-methods =
+	<
+	    SQLError SQLGetDiagRec SQLGetDiagRecW SQLAllocHandle SQLFreeHandle SQLSetEnvAttr SQLDrivers SQLDriversW SQLGetInfo SQLGetInfoW
+	>;
 
-    our sub GetDiagRecW
-		(
-		    int16	   $handleType, Pointer $handle,
-		    int16	   $recordNumber,
-		    CArray[uint16] $sqlState,
-		    int32	   $nativeError is rw,
-		    CArray[uint16] $message, int16 $messageMaxLen, int16 $messageLenPtr is rw
-		)
-		    returns int16 is native(LIBNAME) is symbol('SQLGetDiagRecW')
+    role Implementation[Str $lib]
     {
-	*
-    }
+	has $.library-name = $lib;
 
-    our sub AllocHandle(int16 $handleType, Pointer $handle, Pointer $resultHandle is rw) returns int16 is native(LIBNAME) is symbol('SQLAllocHandle')
-    {
-	*
-    }
+	has &.SQLError := sub
+		    (
+			Pointer		$hEnv,
+			Pointer		$hConn,
+			Pointer		$hStmt,
+			CArray[uint8]	$szSqlState,
+			int32		$nativeError is rw,
+			CArray[uint8]	$szErrorMsg, int16 $cbErrorMsgMaxBuffer, int16 $pcbErrorMsg is rw
+		    )
+			returns int16 is native($lib) is symbol('SQLError')
+	{
+	    *
+	};
 
-    our sub FreeHandle(int16 $handleType, Pointer $handle) returns int16 is native(LIBNAME) is symbol('SQLFreeHandle')
-    {
-	*
-    }
+	has &.SQLGetDiagRec := sub
+		    (
+			int16		$handleType, Pointer $handle,
+			int16	   	$recordNumber,
+			CArray[uint8]   $sqlState,
+			int32		$nativeError is rw,
+			CArray[uint8]   $message, int16 $messageMaxLen, int16 $messageLenPtr is rw
+		    )
+			returns int16 is native($lib) is symbol('SQLGetDiagRec')
+	{
+	    *
+	}
 
-    our sub SetEnvAttr(Pointer $hEnv, int32 $attribute, Pointer $valuePtr, int32 $valueLength) returns int16 is native(LIBNAME) is symbol('SQLSetEnvAttr')
-    {
-	*
-    }
+	has &.SQLGetDiagRecW := sub
+		    (
+			int16		$handleType, Pointer $handle,
+			int16		$recordNumber,
+			CArray[uint16]	$sqlState,
+			int32		$nativeError is rw,
+			CArray[uint16]	$message, int16 $messageMaxLen, int16 $messageLenPtr is rw
+		    )
+			returns int16 is native($lib) is symbol('SQLGetDiagRecW')
+	{
+	    *
+	}
 
-    our sub Drivers
-		(
-		    Pointer $hEnv,
-		    uint16  $whence,
-		    CArray[uint8] $driverDescription, int16 $descriptionMaxLen, int16 $descriptionLenPtr is rw,
-		    CArray[uint8] $driverAttributes,  int16 $attributesMaxLen,  int16 $attributesLenPtr  is rw
-		)
-		    returns int16 is native(LIBNAME) is symbol('SQLDrivers')
-    {
-	*
-    }
+	has &.SQLAllocHandle := sub (int16 $handleType, Pointer $handle, Pointer $resultHandle is rw) returns int16 is native($lib) is symbol('SQLAllocHandle')
+	{
+	    *
+	}
 
-    our sub DriversW
-		(
-		    Pointer $hEnv,
-		    uint16  $whence,
-		    CArray[uint16] $driverDescription, int16 $descriptionMaxLen, int16 $descriptionLenPtr is rw,
-		    CArray[uint16] $driverAttributes,  int16 $attributesMaxLen,  int16 $attributesLenPtr  is rw
-		)
-		    returns int16 is native(LIBNAME) is symbol('SQLDriversW')
-    {
-	*
-    }
+	has &.SQLFreeHandle := sub (int16 $handleType, Pointer $handle) returns int16 is native($lib) is symbol('SQLFreeHandle')
+	{
+	    *
+	}
 
-    our sub GetInfo(Pointer $hConn, uint16 $infoType, Pointer $infoValuePtr, int16 $bufferLength, int16 $stringLength is rw)
-	returns int16 is native(LIBNAME) is symbol('SQLGetInfo')
-    {
-	*
-    }
+	has &.SQLSetEnvAttr := sub (Pointer $hEnv, int32 $attribute, Pointer $valuePtr, int32 $valueLength) returns int16 is native($lib) is symbol('SQLSetEnvAttr')
+	{
+	    *
+	}
 
-    our sub GetInfoW(Pointer $hConn, uint16 $infoType, Pointer $infoValuePtr, int16 $bufferLength, int16 $stringLength is rw)
-	returns int16 is native(LIBNAME) is symbol('SQLGetInfo')
-    {
-	*
+	has &.SQLDrivers := sub
+		    (
+			Pointer $hEnv,
+			uint16  $whence,
+			CArray[uint8] $driverDescription, int16 $descriptionMaxLen, int16 $descriptionLenPtr is rw,
+			CArray[uint8] $driverAttributes,  int16 $attributesMaxLen,  int16 $attributesLenPtr  is rw
+		    )
+			returns int16 is native($lib) is symbol('SQLDrivers')
+	{
+	    *
+	}
+
+	has &.SQLDriversW := sub
+		    (
+			Pointer $hEnv,
+			uint16  $whence,
+			CArray[uint16] $driverDescription, int16 $descriptionMaxLen, int16 $descriptionLenPtr is rw,
+			CArray[uint16] $driverAttributes,  int16 $attributesMaxLen,  int16 $attributesLenPtr  is rw
+		    )
+			returns int16 is native($lib) is symbol('SQLDriversW')
+	{
+	    *
+	}
+
+	has &.SQLGetInfo := sub (Pointer $hConn, uint16 $infoType, Pointer $infoValuePtr, int16 $bufferLength, int16 $stringLength is rw)
+	    returns int16 is native($lib) is symbol('SQLGetInfo')
+	{
+	    *
+	}
+
+	has &.SQLGetInfoW := sub (Pointer $hConn, uint16 $infoType, Pointer $infoValuePtr, int16 $bufferLength, int16 $stringLength is rw)
+	    returns int16 is native($lib) is symbol('SQLGetInfoW')
+	{
+	    *
+	}
     }
 }
 
